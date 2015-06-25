@@ -27,10 +27,25 @@
 }
 
 - (void)testFeedParser {
-	// This is an example of a functional test case.
-	IDNFeedInfo* info = [IDNFeedParser feedInfoWithUrl:@"http://news.163.com/special/00011K6L/rss_newstop.xml"];
+	// 获取RSS源信息
+	IDNFeedInfo* info = [IDNFeedParser feedInfoWithUrl:@"http://www.zhihu.com/rss"];
 	XCTAssertNotNil(info, @"解析IDNFeedInfo失败");
-	NSArray* items = [IDNFeedParser feedItemsWithUrl:@"http://news.163.com/special/00011K6L/rss_newstop.xml"];
+	// 获取文章列表
+	NSArray* items = [IDNFeedParser feedItemsWithUrl:@"http://www.zhihu.com/rss"];
+	XCTAssertNotEqual(items.count, 0, @"解析IDNFeedItems失败");
+}
+
+- (void)testFeedParserTwoStep {
+	NSString* rssUrl = @"http://www.zhihu.com/rss";
+	// 获取rss原始Data
+	NSData* rssData = [IDNFeedParser dataFromUrl:rssUrl];
+
+	// 解析RSS源信息
+	IDNFeedInfo* info = [IDNFeedParser feedInfoWithData:rssData fromUrl:rssUrl];
+	XCTAssertNotNil(info, @"解析IDNFeedInfo失败");
+
+	// 获取文章列表
+	NSArray* items = [IDNFeedParser feedItemsWithData:rssData fromUrl:rssUrl];
 	XCTAssertNotEqual(items.count, 0, @"解析IDNFeedItems失败");
 }
 
