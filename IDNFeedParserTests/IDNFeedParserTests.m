@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
+#import "IDNFeedParser.h"
 
 @interface IDNFeedParserTests : XCTestCase
 
@@ -25,16 +26,19 @@
     [super tearDown];
 }
 
-- (void)testExample {
-    // This is an example of a functional test case.
-    XCTAssert(YES, @"Pass");
+- (void)testFeedParser {
+	// This is an example of a functional test case.
+	IDNFeedInfo* info = [IDNFeedParser feedInfoWithUrl:@"http://news.163.com/special/00011K6L/rss_newstop.xml"];
+	XCTAssertNotNil(info, @"解析IDNFeedInfo失败");
+	NSArray* items = [IDNFeedParser feedItemsWithUrl:@"http://news.163.com/special/00011K6L/rss_newstop.xml"];
+	XCTAssertNotEqual(items.count, 0, @"解析IDNFeedItems失败");
 }
 
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
-    }];
-}
+//- (void)testPerformanceExample {
+//    // This is an example of a performance test case.
+//    [self measureBlock:^{
+//        // Put the code you want to measure the time of here.
+//    }];
+//}
 
 @end

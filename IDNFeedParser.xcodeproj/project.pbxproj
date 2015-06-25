@@ -14,6 +14,10 @@
 		94CD915B1B3C6E5C00823D12 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 94CD915A1B3C6E5C00823D12 /* Images.xcassets */; };
 		94CD915E1B3C6E5C00823D12 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 94CD915C1B3C6E5C00823D12 /* LaunchScreen.xib */; };
 		94CD916A1B3C6E5C00823D12 /* IDNFeedParserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CD91691B3C6E5C00823D12 /* IDNFeedParserTests.m */; };
+		94CD917C1B3C6EF700823D12 /* GTMNSString+HTML.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CD91751B3C6EF700823D12 /* GTMNSString+HTML.m */; };
+		94CD917D1B3C6EF700823D12 /* IDNFeedParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CD91771B3C6EF700823D12 /* IDNFeedParser.m */; };
+		94CD917E1B3C6EF700823D12 /* NSDate+InternetDateTime.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CD91791B3C6EF700823D12 /* NSDate+InternetDateTime.m */; };
+		94CD917F1B3C6EF700823D12 /* NSString+HTML.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CD917B1B3C6EF700823D12 /* NSString+HTML.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +44,14 @@
 		94CD91631B3C6E5C00823D12 /* IDNFeedParserTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IDNFeedParserTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		94CD91681B3C6E5C00823D12 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		94CD91691B3C6E5C00823D12 /* IDNFeedParserTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IDNFeedParserTests.m; sourceTree = "<group>"; };
+		94CD91741B3C6EF700823D12 /* GTMNSString+HTML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "GTMNSString+HTML.h"; sourceTree = "<group>"; };
+		94CD91751B3C6EF700823D12 /* GTMNSString+HTML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "GTMNSString+HTML.m"; sourceTree = "<group>"; };
+		94CD91761B3C6EF700823D12 /* IDNFeedParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IDNFeedParser.h; sourceTree = "<group>"; };
+		94CD91771B3C6EF700823D12 /* IDNFeedParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IDNFeedParser.m; sourceTree = "<group>"; };
+		94CD91781B3C6EF700823D12 /* NSDate+InternetDateTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+InternetDateTime.h"; sourceTree = "<group>"; };
+		94CD91791B3C6EF700823D12 /* NSDate+InternetDateTime.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+InternetDateTime.m"; sourceTree = "<group>"; };
+		94CD917A1B3C6EF700823D12 /* NSString+HTML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+HTML.h"; sourceTree = "<group>"; };
+		94CD917B1B3C6EF700823D12 /* NSString+HTML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+HTML.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +93,7 @@
 		94CD914C1B3C6E5C00823D12 /* IDNFeedParser */ = {
 			isa = PBXGroup;
 			children = (
+				94CD91731B3C6EF700823D12 /* IDNFeedParser */,
 				94CD91511B3C6E5C00823D12 /* AppDelegate.h */,
 				94CD91521B3C6E5C00823D12 /* AppDelegate.m */,
 				94CD91541B3C6E5C00823D12 /* ViewController.h */,
@@ -117,6 +130,21 @@
 				94CD91681B3C6E5C00823D12 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		94CD91731B3C6EF700823D12 /* IDNFeedParser */ = {
+			isa = PBXGroup;
+			children = (
+				94CD91761B3C6EF700823D12 /* IDNFeedParser.h */,
+				94CD91771B3C6EF700823D12 /* IDNFeedParser.m */,
+				94CD91741B3C6EF700823D12 /* GTMNSString+HTML.h */,
+				94CD91751B3C6EF700823D12 /* GTMNSString+HTML.m */,
+				94CD91781B3C6EF700823D12 /* NSDate+InternetDateTime.h */,
+				94CD91791B3C6EF700823D12 /* NSDate+InternetDateTime.m */,
+				94CD917A1B3C6EF700823D12 /* NSString+HTML.h */,
+				94CD917B1B3C6EF700823D12 /* NSString+HTML.m */,
+			);
+			path = IDNFeedParser;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -220,8 +248,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				94CD91561B3C6E5C00823D12 /* ViewController.m in Sources */,
+				94CD917C1B3C6EF700823D12 /* GTMNSString+HTML.m in Sources */,
 				94CD91531B3C6E5C00823D12 /* AppDelegate.m in Sources */,
+				94CD917F1B3C6EF700823D12 /* NSString+HTML.m in Sources */,
 				94CD91501B3C6E5C00823D12 /* main.m in Sources */,
+				94CD917E1B3C6EF700823D12 /* NSDate+InternetDateTime.m in Sources */,
+				94CD917D1B3C6EF700823D12 /* IDNFeedParser.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
