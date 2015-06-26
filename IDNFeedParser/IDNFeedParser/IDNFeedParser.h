@@ -13,9 +13,11 @@
 
  主要做了以下改动：
 
- 1. 简化接口，去掉异步操作，只留下同步操作；
- 1. 把下载与解析分开（解耦），方便对RSS xml数据进行缓存。
+ 1. 简化接口，去掉异步操作和delegate，只留下同步操作；
+ 1. 把下载与解析分开（解耦），方便对RSS数据进行缓存。
  1. FeedInfo增加了image图像信息
+
+ 之所以去掉异步方式和delegate，就是为了保持接口的简洁。开发者也可以很方便地使用GCG或者NSOperation来实现异步加载和解析，或者使用自己的多线程组件实现异步加载。
 
  简单用法：
 
@@ -69,9 +71,9 @@
 //RSS解析器
 @interface IDNFeedParser : NSObject
 
-/// 获取RSS源信息
+/// 获取RSS源信息。出错返回nil
 + (IDNFeedInfo*)feedInfoWithUrl:(NSString*)url;
-/// 获取RSS文章列表
+/// 获取RSS文章列表。出错返回nil
 + (NSArray*)feedItemsWithUrl:(NSString*)url; // 返回IDNFeedItem对象的数组
 
 /**
@@ -79,9 +81,9 @@
  内部调用了+[IDNFeedParser utf8DataFromData:textEncodingName:]
  */
 + (NSData*)dataFromUrl:(NSString*)url;
-/// 获取RSS源信息
+/// 获取RSS源信息。出错返回nil
 + (IDNFeedInfo*)feedInfoWithData:(NSData *)data fromUrl:(NSString*)url;
-/// 获取RSS文章列表
+/// 获取RSS文章列表。出错返回nil
 + (NSArray*)feedItemsWithData:(NSData*)data fromUrl:(NSString*)url; // 返回IDNFeedItem对象的数组
 
 /**

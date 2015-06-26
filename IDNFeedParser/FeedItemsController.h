@@ -7,9 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "IDNFeedParser.h"
 
-@interface ViewController : UIViewController
+@interface FeedItemsController : UITableViewController
 
+@property(nonatomic,strong) IDNFeedInfo* feedInfo;
 
 @end
 
