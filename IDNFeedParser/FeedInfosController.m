@@ -32,7 +32,8 @@
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 
 		// 获取RSS源信息
-		IDNFeedInfo* info = [IDNFeedParser feedInfoWithUrl:@"http://www.zhihu.com/rss"];
+//		IDNFeedInfo* info = [IDNFeedParser feedInfoWithUrl:@"http://www.zhihu.com/rss"];
+		IDNFeedInfo* info = [IDNFeedParser feedInfoWithUrl:@"http://news.baidu.com/n?cmd=1&class=civilnews&tn=rss"];
 
 		if(info==nil) //失败
 			[self.navigationController prompt:@"读取RSS源信息失败" duration:2];

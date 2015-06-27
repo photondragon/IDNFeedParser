@@ -168,6 +168,29 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 
 + (NSData*)utf8DataFromData:(NSData*)data textEncodingName:(NSString*)textEncodingName
 {
+	if(textEncodingName==nil) //检测xml文件头中包含的字符编码。例如：<?xml version="1.0" encoding="gb2312"?>
+	{
+		NSData* dataHeader;
+		if(data.length>1024)
+			dataHeader = [data subdataWithRange:NSMakeRange(0, 1024)];
+		else
+			dataHeader = data;
+		NSString* dataHeaderString = [[NSString alloc] initWithData:dataHeader encoding:NSMacOSRomanStringEncoding];
+		if ([dataHeaderString hasPrefix:@"<?xml"]) {
+			NSRange a = [dataHeaderString rangeOfString:@"?>"];
+			if (a.location != NSNotFound) {
+				NSString *xmlHeader = [dataHeaderString substringToIndex:a.location];
+				NSRange b = [xmlHeader rangeOfString:@"encoding=\""];
+				if (b.location != NSNotFound) {
+					NSUInteger s = b.location+b.length;
+					NSRange c = [xmlHeader rangeOfString:@"\"" options:0 range:NSMakeRange(s, [xmlHeader length] - s)];
+					if (c.location != NSNotFound) {
+						textEncodingName = [xmlHeader substringWithRange:NSMakeRange(b.location+b.length,c.location-b.location-b.length)];
+					}
+				}
+			}
+		}
+	}
 	// Check whether it's UTF-8
 	if (![[textEncodingName lowercaseString] isEqualToString:@"utf-8"]) {
 
@@ -177,12 +200,29 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 
 		// Attempt to detect encoding from response header
 		NSStringEncoding nsEncoding = 0;
+
 		if (textEncodingName) {
-			CFStringEncoding cfEncoding = CFStringConvertIANACharSetNameToEncoding((CFStringRef)textEncodingName);
-			if (cfEncoding != kCFStringEncodingInvalidId) {
-				nsEncoding = CFStringConvertEncodingToNSStringEncoding(cfEncoding);
-				if (nsEncoding != 0) string = [[NSString alloc] initWithData:data encoding:nsEncoding];
+			if([textEncodingName rangeOfString:@"gb2312" options:NSCaseInsensitiveSearch].location!=NSNotFound)
+			{
+				nsEncoding = CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000);
 			}
+			else if([textEncodingName rangeOfString:@"gb18030" options:NSCaseInsensitiveSearch].location!=NSNotFound)
+			{
+				nsEncoding = CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000);
+			}
+			else if([textEncodingName rangeOfString:@"gbk" options:NSCaseInsensitiveSearch].location!=NSNotFound)
+			{
+				nsEncoding = CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGBK_95);
+			}
+			else
+			{
+				CFStringEncoding cfEncoding = CFStringConvertIANACharSetNameToEncoding((CFStringRef)textEncodingName);
+				if (cfEncoding != kCFStringEncodingInvalidId)
+					nsEncoding = CFStringConvertEncodingToNSStringEncoding(cfEncoding);
+			}
+
+			if (nsEncoding != 0)
+				string = [[NSString alloc] initWithData:data encoding:nsEncoding];
 		}
 
 		// If that failed then make our own attempts

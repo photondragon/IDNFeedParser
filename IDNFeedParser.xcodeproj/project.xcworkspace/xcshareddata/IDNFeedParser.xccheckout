@@ -7,14 +7,14 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>3A59A6C5-1702-4E2C-BF35-27F3A9D01E37</string>
 	<key>IDESourceControlProjectName</key>
-	<string>IDNFeedParser</string>
+	<string>project</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>753C1CA4881ED91D7BF7A77C31532F15E819BB83</key>
 		<string>github.com:photondragon/IDNFeedParser.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>IDNFeedParser.xcodeproj</string>
+	<string>IDNFeedParser.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>753C1CA4881ED91D7BF7A77C31532F15E819BB83</key>
