@@ -69,8 +69,8 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 	NSString *currentPath;
 	NSMutableString *currentText;
 	NSDictionary *currentElementAttributes;
-	IDNFeedInfo *info;
-	IDNFeedItem *item;
+	IDNFeedInfo *parsingInfo;
+	IDNFeedItem *parsingItem;
 	NSMutableArray* itemsContainer;
 }
 
@@ -105,8 +105,8 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 	feedType = FeedTypeUnknown;
 	currentPath = @"/";
 	currentText = [[NSMutableString alloc] init];
-	item = nil;
-	info = nil;
+	parsingItem = nil;
+	parsingInfo = nil;
 	currentElementAttributes = nil;
 	parseStructureAsContent = NO;
 	pathOfElementWithXHTMLType = nil;
@@ -294,8 +294,8 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 	}
 
 	self.standardUrl = url;
-	info = [[IDNFeedInfo alloc] init];
-	info.url = self.standardUrl;
+	parsingInfo = [[IDNFeedInfo alloc] init];
+	parsingInfo.url = self.standardUrl;
 
 	itemsContainer = [NSMutableArray new];
 
@@ -304,12 +304,41 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 	[feedParser parse];
 	feedParser = nil; // Release after parse
 
-	self.feedInfo = info;
+	self.feedInfo = parsingInfo;
 	if(error)
 		self.feedItems = nil;
 	else
+	{
+		for(IDNFeedItem* item in itemsContainer)
+		{
+			item.image = [IDNFeedParser findImageUrlInContent:item.summary];
+		}
 		self.feedItems = [itemsContainer copy];
+	}
 	itemsContainer = nil;
+}
+
++ (NSString*)findImageUrlInContent:(NSString*)content
+{
+	NSRange rangeImg0 = [content rangeOfString:@"<img " options:NSCaseInsensitiveSearch];
+	if(rangeImg0.location==NSNotFound)
+		return nil;
+	NSInteger imgStart = rangeImg0.location;
+	NSRange rangeImg1 = [content rangeOfString:@">" options:NSCaseInsensitiveSearch range:NSMakeRange(imgStart, content.length-imgStart)];
+	if(rangeImg1.location==NSNotFound)
+		return nil;
+	NSInteger imgEnd = rangeImg1.location+rangeImg1.length;
+	NSString* imgString = [content substringWithRange:NSMakeRange(imgStart, imgEnd-imgStart)];
+
+	NSRange rangeSrc0 = [imgString rangeOfString:@"src=\"http" options:NSCaseInsensitiveSearch];
+	if(rangeSrc0.location==NSNotFound)
+		return nil;
+	NSInteger srcStart = rangeSrc0.location+rangeSrc0.length-4;
+	NSRange rangeSrc1 = [imgString rangeOfString:@"\"" options:NSCaseInsensitiveSearch range:NSMakeRange(srcStart, imgString.length-srcStart)];
+	if(rangeSrc1.location==NSNotFound)
+		return nil;
+	NSInteger srcEnd = rangeSrc1.location;
+	return [imgString substringWithRange:NSMakeRange(srcStart, srcEnd-srcStart)];
 }
 
 // If an error occurs, create NSError and inform delegate
@@ -425,7 +454,7 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 			}
 
 			// New item
-			item = [[IDNFeedItem alloc] init];
+			parsingItem = [[IDNFeedItem alloc] init];
 
 			// Return
 			return;
@@ -503,24 +532,24 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 
 					// Item
 					if (!processed) {
-						if ([currentPath isEqualToString:@"/rss/channel/item/title"]) { if (processedText.length > 0) item.title = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rss/channel/item/link"]) { if (processedText.length > 0) item.link = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rss/channel/item/author"]) { if (processedText.length > 0) item.author = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rss/channel/item/dc:creator"]) { if (processedText.length > 0) item.author = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rss/channel/item/guid"]) { if (processedText.length > 0) item.identifier = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rss/channel/item/description"]) { if (processedText.length > 0) item.summary = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rss/channel/item/content:encoded"]) { if (processedText.length > 0) item.content = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rss/channel/item/pubDate"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC822]; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rss/channel/item/enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:item]; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rss/channel/item/dc:date"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
+						if ([currentPath isEqualToString:@"/rss/channel/item/title"]) { if (processedText.length > 0) parsingItem.title = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rss/channel/item/link"]) { if (processedText.length > 0) parsingItem.link = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rss/channel/item/author"]) { if (processedText.length > 0) parsingItem.author = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rss/channel/item/dc:creator"]) { if (processedText.length > 0) parsingItem.author = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rss/channel/item/guid"]) { if (processedText.length > 0) parsingItem.identifier = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rss/channel/item/description"]) { if (processedText.length > 0) parsingItem.summary = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rss/channel/item/content:encoded"]) { if (processedText.length > 0) parsingItem.content = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rss/channel/item/pubDate"]) { if (processedText.length > 0) parsingItem.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC822]; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rss/channel/item/enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:parsingItem]; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rss/channel/item/dc:date"]) { if (processedText.length > 0) parsingItem.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
 					}
 
 					// Info
 					if (!processed && _feedParseType != ParseTypeItemsOnly) {
-						if ([currentPath isEqualToString:@"/rss/channel/title"]) { if (processedText.length > 0) info.title = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rss/channel/description"]) { if (processedText.length > 0) info.summary = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rss/channel/link"]) { if (processedText.length > 0) info.link = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rss/channel/image/url"]) { if (processedText.length > 0) info.image = processedText; processed = YES; }
+						if ([currentPath isEqualToString:@"/rss/channel/title"]) { if (processedText.length > 0) parsingInfo.title = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rss/channel/description"]) { if (processedText.length > 0) parsingInfo.summary = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rss/channel/link"]) { if (processedText.length > 0) parsingInfo.link = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rss/channel/image/url"]) { if (processedText.length > 0) parsingInfo.image = processedText; processed = YES; }
 					}
 
 					break;
@@ -533,21 +562,21 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 
 					// Item
 					if (!processed) {
-						if ([currentPath isEqualToString:@"/rdf:RDF/item/title"]) { if (processedText.length > 0) item.title = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rdf:RDF/item/link"]) { if (processedText.length > 0) item.link = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rdf:RDF/item/description"]) { if (processedText.length > 0) item.summary = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rdf:RDF/item/content:encoded"]) { if (processedText.length > 0) item.content = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:identifier"]) { if (processedText.length > 0) item.identifier = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:creator"]) { if (processedText.length > 0) item.author = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:date"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rdf:RDF/item/enc:enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:item]; processed = YES; }
+						if ([currentPath isEqualToString:@"/rdf:RDF/item/title"]) { if (processedText.length > 0) parsingItem.title = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rdf:RDF/item/link"]) { if (processedText.length > 0) parsingItem.link = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rdf:RDF/item/description"]) { if (processedText.length > 0) parsingItem.summary = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rdf:RDF/item/content:encoded"]) { if (processedText.length > 0) parsingItem.content = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:identifier"]) { if (processedText.length > 0) parsingItem.identifier = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:creator"]) { if (processedText.length > 0) parsingItem.author = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:date"]) { if (processedText.length > 0) parsingItem.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rdf:RDF/item/enc:enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:parsingItem]; processed = YES; }
 					}
 
 					// Info
 					if (!processed && _feedParseType != ParseTypeItemsOnly) {
-						if ([currentPath isEqualToString:@"/rdf:RDF/channel/title"]) { if (processedText.length > 0) info.title = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rdf:RDF/channel/description"]) { if (processedText.length > 0) info.summary = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/rdf:RDF/channel/link"]) { if (processedText.length > 0) info.link = processedText; processed = YES; }
+						if ([currentPath isEqualToString:@"/rdf:RDF/channel/title"]) { if (processedText.length > 0) parsingInfo.title = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rdf:RDF/channel/description"]) { if (processedText.length > 0) parsingInfo.summary = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/rdf:RDF/channel/link"]) { if (processedText.length > 0) parsingInfo.link = processedText; processed = YES; }
 					}
 
 					break;
@@ -560,22 +589,22 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 
 					// Item
 					if (!processed) {
-						if ([currentPath isEqualToString:@"/feed/entry/title"]) { if (processedText.length > 0) item.title = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/feed/entry/link"]) { [self processAtomLink:currentElementAttributes andAddToMWObject:item]; processed = YES; }
-						else if ([currentPath isEqualToString:@"/feed/entry/id"]) { if (processedText.length > 0) item.identifier = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/feed/entry/summary"]) { if (processedText.length > 0) item.summary = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/feed/entry/content"]) { if (processedText.length > 0) item.content = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/feed/entry/author/name"]) { if (processedText.length > 0) item.author = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/feed/entry/dc:creator"]) { if (processedText.length > 0) item.author = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/feed/entry/published"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
-						else if ([currentPath isEqualToString:@"/feed/entry/updated"]) { if (processedText.length > 0) item.updated = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
+						if ([currentPath isEqualToString:@"/feed/entry/title"]) { if (processedText.length > 0) parsingItem.title = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/feed/entry/link"]) { [self processAtomLink:currentElementAttributes andAddToMWObject:parsingItem]; processed = YES; }
+						else if ([currentPath isEqualToString:@"/feed/entry/id"]) { if (processedText.length > 0) parsingItem.identifier = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/feed/entry/summary"]) { if (processedText.length > 0) parsingItem.summary = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/feed/entry/content"]) { if (processedText.length > 0) parsingItem.content = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/feed/entry/author/name"]) { if (processedText.length > 0) parsingItem.author = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/feed/entry/dc:creator"]) { if (processedText.length > 0) parsingItem.author = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/feed/entry/published"]) { if (processedText.length > 0) parsingItem.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
+						else if ([currentPath isEqualToString:@"/feed/entry/updated"]) { if (processedText.length > 0) parsingItem.updated = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
 					}
 
 					// Info
 					if (!processed && _feedParseType != ParseTypeItemsOnly) {
-						if ([currentPath isEqualToString:@"/feed/title"]) { if (processedText.length > 0) info.title = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/feed/description"]) { if (processedText.length > 0) info.summary = processedText; processed = YES; }
-						else if ([currentPath isEqualToString:@"/feed/link"]) { [self processAtomLink:currentElementAttributes andAddToMWObject:info]; processed = YES;}
+						if ([currentPath isEqualToString:@"/feed/title"]) { if (processedText.length > 0) parsingInfo.title = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/feed/description"]) { if (processedText.length > 0) parsingInfo.summary = processedText; processed = YES; }
+						else if ([currentPath isEqualToString:@"/feed/link"]) { [self processAtomLink:currentElementAttributes andAddToMWObject:parsingInfo]; processed = YES;}
 					}
 
 					break;
@@ -605,7 +634,7 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 				(feedType == FeedTypeAtom && [qName isEqualToString:@"feed"])) {
 
 				// Document ending so if we havent sent off feed info yet, do so
-				if (info && _feedParseType != ParseTypeItemsOnly)
+				if (parsingInfo && _feedParseType != ParseTypeItemsOnly)
 					[self dispatchFeedInfoToDelegate];
 			}
 		}
@@ -671,25 +700,25 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 #pragma mark Send Items to Delegate
 
 - (void)dispatchFeedInfoToDelegate {
-	if (info) {
+	if (parsingInfo) {
 		// Debug log
 		MWLog(@"MWFeedParser: Feed info for \"%@\" successfully parsed", info.title);
 	}
 }
 
 - (void)dispatchFeedItem {
-	if (item)
+	if (parsingItem)
 	{
 		// Process before hand
-		if (!item.summary) { item.summary = item.content; item.content = nil; }
-		if (!item.date && item.updated) { item.date = item.updated; }
+		if (!parsingItem.summary) { parsingItem.summary = parsingItem.content; parsingItem.content = nil; }
+		if (!parsingItem.date && parsingItem.updated) { parsingItem.date = parsingItem.updated; }
 
 		// Debug log
 		MWLog(@"MWFeedParser: Feed item \"%@\" successfully parsed", item.title);
 
 		// Finish
-		[itemsContainer addObject:item];
-		item = nil;
+		[itemsContainer addObject:parsingItem];
+		parsingItem = nil;
 	}
 }
 
@@ -833,6 +862,7 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 		_identifier = [aDecoder decodeObjectForKey:@"identifier"];
 		_title = [aDecoder decodeObjectForKey:@"title"];
 		_link = [aDecoder decodeObjectForKey:@"link"];
+		_image = [aDecoder decodeObjectForKey:@"image"];
 		_date = [aDecoder decodeObjectForKey:@"date"];
 		_updated = [aDecoder decodeObjectForKey:@"updated"];
 		_summary = [aDecoder decodeObjectForKey:@"summary"];
@@ -848,6 +878,7 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 	[aCoder encodeObject:_identifier forKey:@"identifier"];
 	[aCoder encodeObject:_title forKey:@"title"];
 	[aCoder encodeObject:_link forKey:@"link"];
+	[aCoder encodeObject:_image forKey:@"image"];
 	[aCoder encodeObject:_date forKey:@"date"];
 	[aCoder encodeObject:_updated forKey:@"updated"];
 	[aCoder encodeObject:_summary forKey:@"summary"];

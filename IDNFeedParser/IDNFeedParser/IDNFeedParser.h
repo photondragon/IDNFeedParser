@@ -126,10 +126,10 @@
 @interface IDNFeedInfo : NSObject
 <NSCoding>
 
-@property(nonatomic,copy) NSString *title;
-@property(nonatomic,copy) NSString *link;
-@property(nonatomic,copy) NSString *summary;
-@property(nonatomic,copy) NSString *url;
+@property(nonatomic,copy) NSString* title;
+@property(nonatomic,copy) NSString* link;
+@property(nonatomic,copy) NSString* summary;
+@property(nonatomic,copy) NSString* url;
 @property(nonatomic,copy) NSString* image;
 
 @end
@@ -138,15 +138,16 @@
 @interface IDNFeedItem : NSObject
 <NSCoding>
 
-@property (nonatomic, copy) NSString *identifier;
-@property (nonatomic, copy) NSString *title;
-@property (nonatomic, copy) NSString *link;
-@property (nonatomic, copy) NSDate *date;
-@property (nonatomic, copy) NSDate *updated;
-@property (nonatomic, copy) NSString *summary;
-@property (nonatomic, copy) NSString *content;
-@property (nonatomic, copy) NSString *author;
-@property (nonatomic, copy) NSArray *enclosures;
+@property (nonatomic, copy) NSString* identifier;
+@property (nonatomic, copy) NSString* title;
+@property (nonatomic, copy) NSString* link;
+@property (nonatomic, copy) NSString* image;
+@property (nonatomic, copy) NSDate* date;
+@property (nonatomic, copy) NSDate* updated;
+@property (nonatomic, copy) NSString* summary;
+@property (nonatomic, copy) NSString* content;
+@property (nonatomic, copy) NSString* author;
+@property (nonatomic, copy) NSArray* enclosures;
 
 @end
 
