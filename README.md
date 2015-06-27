@@ -1,4 +1,4 @@
-### *IDNFeedParser* 一个使用非常方便的Rss解析库
+### *IDNFeedParser* 一个简单易用的Rss解析库
 
 在[MWFeedParser](https://github.com/mwaterfall/MWFeedParser)的基础上修改。之所以要重新封装，是因为MWFeedParser的接口有点复杂，使用起来不太方便。
 
