@@ -8,7 +8,9 @@
 
 1. 简化接口，去掉异步操作和delegate，只留下同步操作；
 1. 把下载与解析分开（解耦），方便对RSS数据进行缓存。
-1. FeedInfo增加了image图像信息
+1. 识别RSS频道的图像信息，为FeedInfo增加了image属性
+1. 自动分析文章摘要信息，为FeedItem增加了image属性
+1. 修复编码为中文时（如GB2313），识别出来的信息为乱码的问题
 
 这个库使用起来非常简单，只要把IDNFeedParser目录下的源文件拷贝到你的项目中，然后`#import "IDNFeedParser.h"`就可以使用了
 
