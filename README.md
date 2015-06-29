@@ -1,6 +1,6 @@
 ### *IDNFeedParser* 一个简单易用的Rss解析库
 
-在[MWFeedParser](https://github.com/mwaterfall/MWFeedParser)的基础上修改。之所以要重新封装，是因为MWFeedParser的接口有点复杂，使用起来不太方便。
+在[MWFeedParser](https://github.com/mwaterfall/MWFeedParser)的基础上修改。之所以要重新封装，是因为MWFeedParser的接口有点复杂，使用起来不太方便，而且中文编码解析会乱码。
 
 重新封装后的IDNFeedParser，**只需要一两行代码就可以完成RSS解析**，不用再写那么多delegate方法了。
 
