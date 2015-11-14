@@ -305,15 +305,20 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 	feedParser = nil; // Release after parse
 
 	self.feedInfo = parsingInfo;
-	if(error)
-		self.feedItems = nil;
-	else
+	if(itemsContainer.count>0)
 	{
+		if(error)
+			NSLog(@"解析出了%d个items，但是遇到了错误：\n%@", (int)itemsContainer.count, error);
 		for(IDNFeedItem* item in itemsContainer)
 		{
 			item.image = [IDNFeedParser findImageUrlInContent:item.summary];
 		}
 		self.feedItems = [itemsContainer copy];
+	}
+	else
+	{
+		if(error)
+			self.feedItems = nil;
 	}
 	itemsContainer = nil;
 }
